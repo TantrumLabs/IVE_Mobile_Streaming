@@ -7,20 +7,20 @@ public class VideoManager : MonoBehaviour
 {
     void Awake()
     {
-        for (int i = 0; i < VideoUrls.Count; i++)
+        for (int i = 0; i < Videos.Count; i++)
         {
             MediaPlayerCtrl pl = gameObject.AddComponent<MediaPlayerCtrl>();
             GameObject screen = Instantiate(Resources.Load("SphereScreen")) as GameObject;
             screen.SetActive(false);
 
-            pl.m_bInit = false;
+            pl.m_bInit = true;
             pl.m_bAutoPlay = false;
-            pl.m_bLoop = false;
+            pl.m_bLoop = Videos[i].Loop;
 
             pl.m_TargetMaterial = new GameObject[1];
             pl.m_TargetMaterial[0] = screen;
 
-            pl.m_strFileName = VideoUrls[i];
+            pl.m_strFileName = Videos[i].VideoURL;
 
             pl.m_TargetMaterial[0].name = pl.m_strFileName;
 
@@ -32,26 +32,22 @@ public class VideoManager : MonoBehaviour
         StartCoroutine(Preload());
     }
 
-    public void PlayVideoAtIndex(int index)
+    void Update()
     {
-        if (currentVideoIndex == index)
+        cVideo = preLoaded[currentVideoIndex];
+        if(cVideo.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
         {
-            preLoaded[currentVideoIndex].Play();
-            return;
+            cVideo.Pause();
+            if(!cVideo.m_bLoop && Videos[currentVideoIndex].PlayNextOnEnd)
+            {
+                StartCoroutine(PlayVideoAtIndex(currentVideoIndex + 1));
+            }
         }
-
-        preLoaded[currentVideoIndex].Stop();
-        preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(false);
-
-        currentVideoIndex = index;
-
-        preLoaded[currentVideoIndex].Play();
-        preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(true);
     }
 
     public void PlayNextVideo()
     {
-        PlayVideoAtIndex(currentVideoIndex + 1);
+        StartCoroutine(PlayVideoAtIndex(currentVideoIndex + 1));
     }
 
     public void TogglePlayPause()
@@ -91,19 +87,48 @@ public class VideoManager : MonoBehaviour
 
         preLoaded[index].Pause();
 
-        preLoaded[index].OnEnd += PlayNextVideo;
+        if (index + 1 < preLoaded.Count)
+            StartCoroutine(Preload(index + 1));
 
         t.text = index.ToString() + " Done";
+    }
 
-        if (index + 1 < preLoaded.Count)
-            StartCoroutine(Preload(++index));
-        
+    IEnumerator PlayVideoAtIndex(int index)
+    {
+        while (currentVideoIndex != index)
+        {
+            preLoaded[currentVideoIndex].Pause();
+            while (preLoaded[currentVideoIndex].GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PAUSED)
+                yield return null;
+
+            preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(false);
+
+            preLoaded[index].Play();
+            while (preLoaded[index].GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
+                yield return null;
+
+            preLoaded[index].m_TargetMaterial[0].SetActive(true);
+
+            currentVideoIndex = index;
+        }
     }
 
     public Text t;
-    public List<string> VideoUrls = new List<string>();
 
-    [SerializeField]
+    public List<Video> Videos = new List<Video>();
+
+
+    private MediaPlayerCtrl cVideo;
     private int currentVideoIndex = 0;
     private List<MediaPlayerCtrl> preLoaded = new List<MediaPlayerCtrl>();
+}
+
+[System.Serializable]
+public class Video
+{
+    public string Name;
+    public string VideoURL;
+    public bool AutoPlay;
+    public bool Loop;
+    public bool PlayNextOnEnd;
 }
