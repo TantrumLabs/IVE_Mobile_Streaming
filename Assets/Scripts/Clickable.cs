@@ -1,16 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Clickable
+public class Clickable : MonoBehaviour
 {
-	void Start ()
-    {
-	    
-	}
-	
-	void Update ()
-    {
-	    
-	}
-    
+    public int VideoIndex;
 }
