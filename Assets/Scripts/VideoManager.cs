@@ -1,9 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class VideoManager : Singleton<VideoManager>
 {
+    public void next()
+    {
+        Camera.main.transform.position = Videos[Videos[currentVideoIndex].NextVideoIndex].Screen.transform.position;
+    }
+
     new void Awake()
     {
         base.Awake();
@@ -13,44 +19,33 @@ public class VideoManager : Singleton<VideoManager>
     {
         for (int i = 0; i < Videos.Count; i++)
         {
-            MediaPlayerCtrl pl = gameObject.AddComponent<MediaPlayerCtrl>();
+            Videos[i].mpc = gameObject.AddComponent<MediaPlayerCtrl>();
             GameObject screen = Videos[i].Screen ?
                 Instantiate(Videos[i].Screen) as GameObject :
                 Instantiate(Resources.Load("SphereScreen")) as GameObject;
-            screen.SetActive(false);
+            Videos[i].Screen = screen;
+            //screen.SetActive(false);
+            screen.name = Videos[i].Name;
+            screen.transform.position += new Vector3(i * 10, 0, 0);
 
-            pl.m_bInit = true;
-            pl.m_bAutoPlay = false;
-            pl.m_bLoop = Videos[i].Loop;
+            Videos[i].mpc.m_bSupportRockchip = true;
+            Videos[i].mpc.m_bInit = true;
+            Videos[i].mpc.m_bAutoPlay = false;
+            Videos[i].mpc.m_bLoop = Videos[i].Loop;
 
-            pl.m_TargetMaterial = new GameObject[1];
-            pl.m_TargetMaterial[0] = screen;
+            Videos[i].mpc.m_TargetMaterial = new GameObject[1];
+            Videos[i].mpc.m_TargetMaterial[0] = Videos[i].Screen;
 
-            pl.m_strFileName = Videos[i].VideoURL;
-
-            preLoaded.Add(pl);
+            Videos[i].mpc.m_strFileName = Videos[i].VideoURL;
         }
 
-        preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(true);
+        Videos[currentVideoIndex].mpc.m_TargetMaterial[0].SetActive(true);
         StartCoroutine(Preload());
-    }
-
-    void Update()
-    {
-        cVideo = preLoaded[currentVideoIndex];
-        if (cVideo.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
-        {
-            cVideo.Pause();
-            if (!cVideo.m_bLoop && Videos[currentVideoIndex].PlayNextOnEnd)
-            {
-                StartCoroutine(PlayVideoAtIndex(currentVideoIndex + 1));
-            }
-        }
     }
 
     public void PlayNextVideo()
     {
-        StartCoroutine(PlayVideoAtIndex(currentVideoIndex + 1));
+        StartCoroutine(PlayVideoAtIndex(Videos[currentVideoIndex].NextVideoIndex));
     }
 
     public void PlayVideoAt(int index)
@@ -60,11 +55,11 @@ public class VideoManager : Singleton<VideoManager>
 
     public void TogglePlayPause()
     {
-        MediaPlayerCtrl.MEDIAPLAYER_STATE cState = preLoaded[currentVideoIndex].GetCurrentState();
+        MediaPlayerCtrl.MEDIAPLAYER_STATE cState = Videos[currentVideoIndex].mpc.GetCurrentState();
 
         if (cState == MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
         {
-            preLoaded[currentVideoIndex].Pause();
+            Videos[currentVideoIndex].mpc.Pause();
         }
 
         else if (cState == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY ||
@@ -72,57 +67,60 @@ public class VideoManager : Singleton<VideoManager>
                  cState == MediaPlayerCtrl.MEDIAPLAYER_STATE.STOPPED ||
                  cState == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
         {
-            preLoaded[currentVideoIndex].Play();
+            Videos[currentVideoIndex].mpc.Play();
         }
     }
 
     IEnumerator Preload(int index = 0)
     {
-        preLoaded[index].Load(preLoaded[index].m_strFileName);
+        Videos[index].mpc.Load(Videos[index].VideoURL);
 
-        while (preLoaded[index].GetCurrentSeekPercent() < 99)
+        while (Videos[index].mpc.GetCurrentSeekPercent() < 99)
+        {
+            t.text = index.ToString() + " @ " + Videos[index].mpc.GetCurrentSeekPercent().ToString();
+            yield return null;
+        }
+
+        Videos[index].mpc.Play();
+
+        while (Videos[index].mpc.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
         {
             yield return null;
         }
 
-        preLoaded[index].Play();
+        Videos[index].mpc.Pause();
 
-        while (preLoaded[index].GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
-        {
-            yield return null;
-        }
-
-        preLoaded[index].Pause();
-
-        if (index + 1 < preLoaded.Count)
+        if (index + 1 < Videos.Count)
             StartCoroutine(Preload(index + 1));
+
+        t.text += " Done";
     }
 
     IEnumerator PlayVideoAtIndex(int index)
     {
         while (currentVideoIndex != index)
         {
-            preLoaded[currentVideoIndex].Pause();
-            while (preLoaded[currentVideoIndex].GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PAUSED)
+            Videos[currentVideoIndex].mpc.Pause();
+            while (Videos[currentVideoIndex].mpc.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PAUSED)
                 yield return null;
 
-            preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(false);
+            Videos[currentVideoIndex].mpc.m_TargetMaterial[0].SetActive(false);
 
-            preLoaded[index].Play();
-            while (preLoaded[index].GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
+            Videos[index].mpc.Play();
+            while (Videos[index].mpc.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PLAYING)
                 yield return null;
 
-            preLoaded[index].m_TargetMaterial[0].SetActive(true);
+            Videos[index].mpc.m_TargetMaterial[0].SetActive(true);
 
             currentVideoIndex = index;
         }
     }
 
-    public List<Video> Videos = new List<Video>();
+    public Text t;
 
+    public List<Video> Videos = new List<Video>();
     private MediaPlayerCtrl cVideo;
     private int currentVideoIndex = 0;
-    private List<MediaPlayerCtrl> preLoaded = new List<MediaPlayerCtrl>();
 }
 
 [System.Serializable]
@@ -131,7 +129,9 @@ public class Video
     public string Name;
     public string VideoURL;
     public GameObject Screen;
-    public bool AutoPlay;
     public bool Loop;
     public bool PlayNextOnEnd;
+    public int NextVideoIndex;
+    [HideInInspector]
+    public MediaPlayerCtrl mpc;
 }
