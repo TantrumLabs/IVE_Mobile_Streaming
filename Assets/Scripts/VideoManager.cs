@@ -22,13 +22,10 @@ public class VideoManager : MonoBehaviour
 
             pl.m_strFileName = Videos[i].VideoURL;
 
-            pl.m_TargetMaterial[0].name = pl.m_strFileName;
-
             preLoaded.Add(pl);
         }
 
         preLoaded[currentVideoIndex].m_TargetMaterial[0].SetActive(true);
-
         StartCoroutine(Preload());
     }
 
