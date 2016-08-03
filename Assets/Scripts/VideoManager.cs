@@ -53,6 +53,11 @@ public class VideoManager : Singleton<VideoManager>
         StartCoroutine(PlayVideoAtIndex(currentVideoIndex + 1));
     }
 
+    public void PlayVideoAt(int index)
+    {
+        StartCoroutine(PlayVideoAtIndex(index));
+    }
+
     public void TogglePlayPause()
     {
         MediaPlayerCtrl.MEDIAPLAYER_STATE cState = preLoaded[currentVideoIndex].GetCurrentState();
@@ -112,6 +117,7 @@ public class VideoManager : Singleton<VideoManager>
             currentVideoIndex = index;
         }
     }
+
     public List<Video> Videos = new List<Video>();
 
     private MediaPlayerCtrl cVideo;
