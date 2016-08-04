@@ -8,7 +8,7 @@ public class Silhouette : MonoBehaviour
 
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
     [ContextMenu("Pulse")]
-	void Start ()
+	void Awake ()
     {
         StartCoroutine(HighLightPulse(1));
 	}
