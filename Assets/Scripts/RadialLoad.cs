@@ -2,47 +2,44 @@
 using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent (typeof(Image))]
 public class RadialLoad : MonoBehaviour
 {
     #region Variables
-    private Image progressCircle;                   // 
+    [SerializeField] private Image progressCircle;  // 
     [SerializeField] private float loadTime = 3f;   // Seconds to complete load
     [SerializeField] private Gradient loadGradient; // Gradient over time for load
     public bool isLoading = false;                  // Bool for current state of loading 
+    VideoManager vm;                                // VideoManager
     #endregion
 
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
     [ContextMenu("Set the Type to Fill")]
     void Awake()    // If not already set up, it will be fixed on awake
     {
-        progressCircle        = gameObject.GetComponent<Image>();
-        progressCircle.type   = Image.Type.Filled;
-    }
-    
-    // Context Menu Functions //////////////////////////////////////////////////////////////////////////
-    [ContextMenu("Test Load")]
-    private void testLoad()                 // Simulate an outside function influence on script
-    {
-        Callback c = assdf;
-        isLoading = true;
-        LoadTarget(3, c);
+        vm = FindObjectOfType<VideoManager>();  // VideoManager is a Singleton, so it'll be the only one in the scene
+
+        progressCircle.type = Image.Type.Filled;
+        progressCircle.fillAmount = 0;
+        progressCircle.fillOrigin = 2;
+        progressCircle.fillClockwise = false;
     }
 
-    void assdf()
-    {
-        Debug.Log("Loading complete");
-    }
-    
     // Functions ///////////////////////////////////////////////////////////////////////////////////////
-    public void LoadTarget(float loadTime, Callback a)
+    public void StopLoad()  //
     {
-        loadTime = loadTime;
-        StartCoroutine(LoadCircle(a));
+        isLoading = false;
     }
 
-    IEnumerator LoadCircle(Callback callback)    // Load coroutine
+    public void LoadTarget(float time, int vidIndex)  //
     {
+        isLoading = true;
+        loadTime = time;
+        StartCoroutine(LoadCircle(vidIndex));
+    }
+
+    IEnumerator LoadCircle(int index)    // Load coroutine
+    {
+        //Debug.Log("Load started");
         float timer = 0;
         while (timer <= loadTime && isLoading)
         {
@@ -54,7 +51,8 @@ public class RadialLoad : MonoBehaviour
 
         if(isLoading)
         {
-            callback();
+            //vm.PlayVideoAt(index);
+            //Debug.Log("Load done");
         }
 
         progressCircle.fillAmount = 0;   // Reset
