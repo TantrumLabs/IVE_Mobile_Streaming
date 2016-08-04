@@ -5,11 +5,6 @@ using System.Collections.Generic;
 
 public class VideoManager : Singleton<VideoManager>
 {
-    public void next()
-    {
-        Camera.main.transform.position = Videos[Videos[currentVideoIndex].NextVideoIndex].Screen.transform.position;
-    }
-
     new void Awake()
     {
         base.Awake();
@@ -24,11 +19,10 @@ public class VideoManager : Singleton<VideoManager>
                 Instantiate(Videos[i].Screen) as GameObject :
                 Instantiate(Resources.Load("SphereScreen")) as GameObject;
             Videos[i].Screen = screen;
-            //screen.SetActive(false);
+            screen.SetActive(false);
             screen.name = Videos[i].Name;
-            screen.transform.position += new Vector3(i * 10, 0, 0);
 
-            Videos[i].mpc.m_bSupportRockchip = true;
+            Videos[i].mpc.m_bSupportRockchip = false;
             Videos[i].mpc.m_bInit = true;
             Videos[i].mpc.m_bAutoPlay = false;
             Videos[i].mpc.m_bLoop = Videos[i].Loop;
@@ -45,7 +39,8 @@ public class VideoManager : Singleton<VideoManager>
 
     public void PlayNextVideo()
     {
-        StartCoroutine(PlayVideoAtIndex(Videos[currentVideoIndex].NextVideoIndex));
+        if(Videos[currentVideoIndex].NextVideoIndex != -1)
+            StartCoroutine(PlayVideoAtIndex(Videos[currentVideoIndex].NextVideoIndex));
     }
 
     public void PlayVideoAt(int index)
@@ -77,7 +72,7 @@ public class VideoManager : Singleton<VideoManager>
 
         while (Videos[index].mpc.GetCurrentSeekPercent() < 99)
         {
-            t.text = index.ToString() + " @ " + Videos[index].mpc.GetCurrentSeekPercent().ToString();
+            t.text = (1+index).ToString() + " @ " + Videos[index].mpc.GetCurrentSeekPercent().ToString();
             yield return null;
         }
 
@@ -100,10 +95,11 @@ public class VideoManager : Singleton<VideoManager>
     {
         while (currentVideoIndex != index)
         {
-            Videos[currentVideoIndex].mpc.Pause();
-            while (Videos[currentVideoIndex].mpc.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.PAUSED)
+            Videos[currentVideoIndex].mpc.Stop();
+            while (Videos[currentVideoIndex].mpc.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.STOPPED)
                 yield return null;
 
+            
             Videos[currentVideoIndex].mpc.m_TargetMaterial[0].SetActive(false);
 
             Videos[index].mpc.Play();
