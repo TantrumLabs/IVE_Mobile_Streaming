@@ -25,7 +25,6 @@ public class RaySelect : MonoBehaviour
         {
             OnSelectionExit();  // RayCast is no longer on a Selection Volume
         }
-
     }
 
     // Functions ///////////////////////////////////////////////////////////////////////////////////////
