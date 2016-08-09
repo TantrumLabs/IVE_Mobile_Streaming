@@ -10,7 +10,9 @@ using UnityEngine.UI;
 
 
 public class MediaPlayerCtrl : MonoBehaviour {
-	
+
+    public string err;
+
 	public string m_strFileName;
 	public GameObject [] m_TargetMaterial = null; 
 	private Texture2D m_VideoTexture = null;
@@ -621,6 +623,7 @@ public class MediaPlayerCtrl : MonoBehaviour {
         }
 
 
+        err = strError;
 
         Debug.LogError(strError);
 
