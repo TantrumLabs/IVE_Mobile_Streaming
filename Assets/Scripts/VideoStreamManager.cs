@@ -18,7 +18,7 @@ public class StreamVideo
     //}
 }
 
-public class VideoManager2 : MonoBehaviour
+public class VideoStreamManager : MonoBehaviour
 {
     // Variables ///////////////////////////////////////////////////////////////////////////////////////
     [SerializeField] private GameObject VideoTextureScreen;     // Target Object to use this movie Texture
