@@ -1,33 +1,38 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class VRController : MonoBehaviour
+public class VRController : Singleton<VRController>
 {
+    void Awake()
+    {
+        base.Awake();
+    }
+
     void Start()
     {
         gvrMain = FindObjectOfType<GvrViewer>();
         gvrHead = FindObjectOfType<GvrHead>();
     }
 
-    public void SwitchToVRMode()
+    public void ToggleVRMode(bool set)
     {
-        gvrMain.VRModeEnabled = true;
-        gvrHead.enabled = true;
+        gvrMain.VRModeEnabled = set;
+        gvrHead.enabled = set;
     }
 
-    public void SwitchToFullscreen(bool trackHead = false)
+    public void TrackHead(bool set)
     {
-        gvrMain.VRModeEnabled = false;
-        gvrHead.enabled = trackHead;
+        gvrHead.enabled = set;
     }
 
-    public void SetHeadTracking(bool trackHead)
+
+    public void ToggleHeadTracking()
     {
         if (gvrMain.VRModeEnabled)
             return;
 
         else
-            gvrHead.enabled = trackHead;
+            gvrHead.enabled = !gvrHead.enabled;
     }
 
     private GvrViewer gvrMain;
