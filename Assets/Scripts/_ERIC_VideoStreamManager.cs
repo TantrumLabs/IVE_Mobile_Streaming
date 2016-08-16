@@ -18,19 +18,20 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
     void Update()
     {
-        t.text = m_currentVideo.MPC.GetCurrentState().ToString() + Time.time.ToString();
-        if (m_currentVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
-        {
-            if (m_currentVideo.loop)
-            {
-                m_currentVideo.MPC.Play();
-            }
+        //t.text = videos[m_currentVideo.potentialNextIndex.Count - 1].MPC.GetCurrentState().ToString();
+        t.text = m_currentVideo.Name + " " + m_currentVideo.MPC.GetCurrentState().ToString() + " " + Time.time.ToString();
+        //if (m_currentVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
+        //{
+        //    if (m_currentVideo.loop)
+        //    {
+        //        m_currentVideo.MPC.Play();
+        //    }
 
-            else if (m_currentVideo.potentialNextIndex.Count == 1)
-            {
-                StopCurrentAndPlayAtIndex(m_currentVideo.potentialNextIndex[0]);
-            }
-        }
+        //    else if (m_currentVideo.potentialNextIndex.Count == 1)
+        //    {
+        //        StopCurrentAndPlayAtIndex(m_currentVideo.potentialNextIndex[0]);
+        //    }
+        //}
     }
 
     // /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
@@ -53,12 +54,21 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
             m.m_bAutoPlay = false;
             m.m_bInit = true;
 
+            if (s.autoNext < 0 || s.autoNext >= videos.Count)
+                s.autoNext = -1;
+
             if(s.SelectionScreens)
                 s.SelectionScreens.SetActive(false);
 
-            s.MPC = m;
+            if (s.autoNext != -1 && s.loop == false)
+                m.OnEnd += PlayDefaultNext;
+            else if (s.loop == true)
+                m.OnEnd += PlayPause;
+
+                s.MPC = m;
         }
-        videos[0].MPC.Load(videos[0].MPC.m_strFileName);
+        //videos[0].MPC.Load(videos[0].MPC.m_strFileName);
+        m_currentVideo = videos[0];
     }
 
     public void PlayPause()
@@ -72,13 +82,6 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
     public void StopCurrentAndPlayAtIndex(int index)
     {
         StopThisVideo(m_currentVideo);
-
-        foreach (int i in m_currentVideo.potentialNextIndex)
-        {
-            if (i != index)
-                videos[i].MPC.UnLoad();
-        }
-
         PlayVideoAt(index);
     }
 
@@ -91,14 +94,6 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
         if (videos[index].SelectionScreens)
             videos[index].SelectionScreens.SetActive(true);
-
-        if (videos[index].potentialNextIndex.Count > 0)
-        {
-            foreach (int next in videos[index].potentialNextIndex)
-            {
-                videos[next].MPC.Load(videos[next].MPC.m_strFileName);
-            }
-        }
     }
 
     public void StopThisVideo(StreamVideoInfo video)
@@ -109,6 +104,15 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
         if (video.SelectionScreens)
             video.SelectionScreens.SetActive(false);
+    }
+
+    public void PlayDefaultNext()
+    {
+        if (m_currentVideo.MPC.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
+            return;
+
+        StopThisVideo(m_currentVideo);
+        PlayVideoAt(m_currentVideo.autoNext);
     }
 
     /// <summary>
@@ -134,12 +138,16 @@ public class StreamVideoInfo
     /// True if the video should loop on end
     /// </summary>
     public bool loop = false;
+    /// <summary>
+    /// Video index to auto play when this one ends
+    /// </summary>
+    public int autoNext = -1;
 
     public GameObject SelectionScreens;
     /// <summary>
     /// List of videos that could possibly follow this one
     /// </summary>
-    public List<int> potentialNextIndex = new List<int>();
+    //public List<int> potentialNextIndex = new List<int>();
     /// <summary>
     /// The MediaPlayerCtrl to control the video
     /// </summary>
