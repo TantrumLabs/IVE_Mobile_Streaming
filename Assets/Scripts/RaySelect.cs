@@ -31,7 +31,7 @@ public class RaySelect : MonoBehaviour
     void OnSelectionHit()   // Start Load
     {
         targetIndex = rayCursor.collider.gameObject.GetComponent<Clickable>().VideoIndex;
-        loader.LoadTarget(2, targetIndex);  // Start
+        loader.LoadTarget(targetIndex);  // Start
     }
 
     void OnSelectionExit()  // Stop Load

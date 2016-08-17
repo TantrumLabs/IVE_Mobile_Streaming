@@ -30,11 +30,10 @@ public class RadialLoad : MonoBehaviour
         isLoading = false;
     }
 
-    public void LoadTarget(float time, int vidIndex)  //
+    public void LoadTarget(int vidIndex)  //
     {
-        loadTime = time;
         isLoading = true;
-       StartCoroutine(LoadCircle(vidIndex));
+        StartCoroutine(LoadCircle(vidIndex));
     }
 
     IEnumerator LoadCircle(int index)    // Load coroutine
