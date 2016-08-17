@@ -9,14 +9,14 @@ public class RadialLoad : MonoBehaviour
     [SerializeField] private float loadTime = 3f;   // Seconds to complete load
     [SerializeField] private Gradient loadGradient; // Gradient over time for load
     public bool isLoading = false;                  // Bool for current state of loading 
-    public VideoStreamManager vm;                   // VideoManager
+    public _ERIC_VideoStreamManager vm;                   // VideoManager
     #endregion
 
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
     [ContextMenu("Set the Type to Fill")]
     void Awake()    // If not already set up, it will be fixed on awake
     {
-        vm = FindObjectOfType<VideoStreamManager>();// VideoManager is a Singleton, so it'll be the only one in the scene
+        vm = FindObjectOfType<_ERIC_VideoStreamManager>();// VideoManager is a Singleton, so it'll be the only one in the scene
 
         progressCircle.type = Image.Type.Filled;    // Amount visible dictacted by value
         progressCircle.fillAmount = 0;              // Zero it out
@@ -30,11 +30,10 @@ public class RadialLoad : MonoBehaviour
         isLoading = false;
     }
 
-    public void LoadTarget(float time, int vidIndex)  //
+    public void LoadTarget(int vidIndex)  //
     {
-        loadTime = time;
         isLoading = true;
-       StartCoroutine(LoadCircle(vidIndex));
+        StartCoroutine(LoadCircle(vidIndex));
     }
 
     IEnumerator LoadCircle(int index)    // Load coroutine
@@ -51,7 +50,7 @@ public class RadialLoad : MonoBehaviour
 
         if(isLoading)
         {
-            vm.PlayVideo(index);
+            vm.StopCurrentAndPlayAtIndex(index);
             //Debug.Log("Load done");
         }
 
