@@ -67,7 +67,7 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
                 s.MPC = m;
         }
-        //videos[0].MPC.Load(videos[0].MPC.m_strFileName);
+
         m_currentVideo = videos[0];
     }
 
@@ -87,10 +87,10 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
     public void PlayVideoAt(int index)
     {
+        videos[index].MPC.Load(videos[index].MPC.m_strFileName);
         videos[index].MPC.Play();
         videos[index].MPC.m_TargetMaterial[0] = gameObject;
         m_currentVideo = videos[index];
-
 
         if (videos[index].SelectionScreens)
             videos[index].SelectionScreens.SetActive(true);
@@ -111,8 +111,7 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
         if (m_currentVideo.MPC.GetCurrentState() != MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
             return;
 
-        StopThisVideo(m_currentVideo);
-        PlayVideoAt(m_currentVideo.autoNext);
+        StopCurrentAndPlayAtIndex(m_currentVideo.autoNext);
     }
 
     /// <summary>
