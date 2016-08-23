@@ -84,8 +84,10 @@ public class _8222016 : MonoBehaviour
             case VideoInfo.VideoStates.STOPPED:
                 break;
             case VideoInfo.VideoStates.END:
+                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.OUT);
                 break;
             case VideoInfo.VideoStates.OUT:
+                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
                 break;
             default:
                 break;
