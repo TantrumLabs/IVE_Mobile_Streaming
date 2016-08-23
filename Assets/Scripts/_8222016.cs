@@ -11,13 +11,14 @@ public class _8222016 : MonoBehaviour
         t.text = vInfo.Count.ToString();
         StartUp();
         cVideo = vInfo[0];
+        cVideo.Init();
     }
 
     void StartUp()
     {
         for(int i = 0; i < vInfo.Count; ++i)
         {
-            vInfo[i].MPC = gameObject.AddComponent<MediaPlayerCtrl>();
+            vInfo[i].MPC = gameObject.GetComponent<MediaPlayerCtrl>();
 
             vInfo[i].fsm = new _FSM<VideoInfo.VideoStates>();
 
@@ -49,7 +50,6 @@ public class _8222016 : MonoBehaviour
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.END,      VideoInfo.VideoStates.OUT,      null);
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.OUT,      VideoInfo.VideoStates.READY,    toReady);
 
-
             vInfo[i].fsm.m_currentState = VideoInfo.VideoStates.INIT;
         }
     }
@@ -59,12 +59,12 @@ public class _8222016 : MonoBehaviour
         switch(cVideo.fsm.m_currentState)
         {
             case VideoInfo.VideoStates.INIT:
-                cVideo.Init();
+                //cVideo.Init();
                 cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
                 break;
 
             case VideoInfo.VideoStates.READY:
-                if(cVideo.MPC.GetCurrentSeekPercent() > 99)
+                if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY)
                 {
                     cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
                 }
@@ -175,7 +175,7 @@ public class VideoInfo
 
     public void Init()
     {
-        MPC.m_strFileName = videoPath;
+        //MPC.m_strFileName = videoPath;
         MPC.m_TargetMaterial = new GameObject[1];
         MPC.m_bFullScreen = false;
         MPC.m_bSupportRockchip = false;
@@ -189,6 +189,7 @@ public class VideoInfo
 
     public void Ready()
     {
+        MPC.m_strFileName = videoPath;
         MPC.Load(MPC.m_strFileName);
     }
 
