@@ -20,18 +20,11 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
     {
         //t.text = videos[m_currentVideo.potentialNextIndex.Count - 1].MPC.GetCurrentState().ToString();
         t.text = m_currentVideo.Name + " " + m_currentVideo.MPC.GetCurrentState().ToString() + " " + Time.time.ToString();
-        //if (m_currentVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
-        //{
-        //    if (m_currentVideo.loop)
-        //    {
-        //        m_currentVideo.MPC.Play();
-        //    }
 
-        //    else if (m_currentVideo.potentialNextIndex.Count == 1)
-        //    {
-        //        StopCurrentAndPlayAtIndex(m_currentVideo.potentialNextIndex[0]);
-        //    }
-        //}
+        if(m_currentVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
+            if (m_currentVideo.autoNext != -1 && m_currentVideo.loop == false)
+                PlayDefaultNext();
+
     }
 
     // /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\
@@ -60,9 +53,7 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
             if(s.SelectionScreens)
                 s.SelectionScreens.SetActive(false);
 
-            if (s.autoNext != -1 && s.loop == false)
-                m.OnEnd += PlayDefaultNext;
-            else if (s.loop == true)
+             if (s.loop == true)
                 m.OnEnd += PlayPause;
 
                 s.MPC = m;
@@ -87,13 +78,14 @@ public class _ERIC_VideoStreamManager : MonoBehaviour
 
     public void PlayVideoAt(int index)
     {
-        videos[index].MPC.Load(videos[index].MPC.m_strFileName);
-        videos[index].MPC.Play();
+        //videos[index].MPC.Load(videos[index].MPC.m_strFileName);
         videos[index].MPC.m_TargetMaterial[0] = gameObject;
         m_currentVideo = videos[index];
 
         if (videos[index].SelectionScreens)
             videos[index].SelectionScreens.SetActive(true);
+
+        videos[index].MPC.Play();
     }
 
     public void StopThisVideo(StreamVideoInfo video)
