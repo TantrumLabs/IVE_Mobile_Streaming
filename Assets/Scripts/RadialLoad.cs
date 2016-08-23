@@ -50,7 +50,10 @@ public class RadialLoad : MonoBehaviour
 
         if(isLoading)
         {
-            vm.StopCurrentAndPlayAt(index);
+            if (index != -1)
+                vm.StopCurrentAndPlayAt(index);
+            else
+                Application.OpenURL("http://www.tantrumlab.com/");
             //Debug.Log("Load done");
         }
 
