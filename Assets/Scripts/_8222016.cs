@@ -67,18 +67,21 @@ public class _8222016 : MonoBehaviour
                 }
                 break;
             case VideoInfo.VideoStates.PLAYING:
-                if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
+                if (cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
                 {
                     if(cVideo.loop)
-                        cVideo.MPC.Play();
-                    else
-                        cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.STOPPED);
+                    {
+                        cVideo.Play();
+                    }
+                    else if(cVideo.autoNext >= 0 && cVideo.autoNext < vInfo.Count)
+                    {
+                        StopCurrentAndPlayAt(cVideo.autoNext);
+                    }
                 }
                 break;
             case VideoInfo.VideoStates.PAUSED:
                 break;
             case VideoInfo.VideoStates.STOPPED:
-                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.END);
                 break;
             case VideoInfo.VideoStates.END:
                 break;
@@ -107,6 +110,7 @@ public class _8222016 : MonoBehaviour
     public void StopCurrentAndPlayAt(int index)
     {
         cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.STOPPED);
+        cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.END);
         cVideo = vInfo[index];
     }
 
@@ -192,6 +196,7 @@ public class VideoInfo
 
     public void End()
     {
+        MPC.Stop();
         MPC.m_TargetMaterial[0] = null;
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
