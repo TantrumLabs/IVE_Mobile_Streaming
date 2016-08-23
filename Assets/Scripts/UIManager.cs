@@ -1,12 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIManager : Singleton<UIManager>
+public class UIManager : MonoBehaviour
 {
-    new void Awake()
-    {
-        base.Awake();
-    }
     /// <summary>
     /// Toggles the GUI menu's vivibility
     /// </summary>
