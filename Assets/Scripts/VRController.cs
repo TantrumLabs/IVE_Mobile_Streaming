@@ -1,13 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class VRController : Singleton<VRController>
+public class VRController : MonoBehaviour
 {
-    void Awake()
-    {
-        base.Awake();
-    }
-
     void Start()
     {
         gvrMain = FindObjectOfType<GvrViewer>();

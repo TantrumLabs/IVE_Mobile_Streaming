@@ -29,13 +29,14 @@ public class _8222016 : MonoBehaviour
             vInfo[i].fsm.AddState(VideoInfo.VideoStates.END);
             vInfo[i].fsm.AddState(VideoInfo.VideoStates.OUT);
 
+            //VideoInfo.Handler toInit = vInfo[i].Init;
             VideoInfo.Handler toReady =  vInfo[i].Ready;
             VideoInfo.Handler toPlay = vInfo[i].Play;
             toPlay += SetActiveScreenTrue;
             VideoInfo.Handler toPause = vInfo[i].Pause;
             VideoInfo.Handler toStopped = vInfo[i].Stop;
             VideoInfo.Handler toEnd = vInfo[i].End;
-            toEnd += SetActiveScreenFalse;
+            //toEnd += SetActiveScreenFalse;
 
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.INIT,     VideoInfo.VideoStates.READY,    toReady);
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.READY,    VideoInfo.VideoStates.PLAYING,  toPlay);
@@ -53,19 +54,22 @@ public class _8222016 : MonoBehaviour
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
         switch(cVideo.fsm.m_currentState)
         {
             case VideoInfo.VideoStates.INIT:
+                cVideo.Init();
                 cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
                 break;
+
             case VideoInfo.VideoStates.READY:
                 if(cVideo.MPC.GetCurrentSeekPercent() > 99)
                 {
                     cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
                 }
                 break;
+
             case VideoInfo.VideoStates.PLAYING:
                 if (cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
                 {
@@ -79,25 +83,34 @@ public class _8222016 : MonoBehaviour
                     }
                 }
                 break;
+
             case VideoInfo.VideoStates.PAUSED:
                 break;
+
             case VideoInfo.VideoStates.STOPPED:
                 break;
+
             case VideoInfo.VideoStates.END:
                 cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.OUT);
                 break;
+
             case VideoInfo.VideoStates.OUT:
                 cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
                 break;
+
             default:
                 break;
         };
+
+        // DEBUGGING ////////////////////////////////////////////////////////////
 
         t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
         t.text += cVideo.fsm.m_currentState.ToString();
         t.text += cVideo.MPC.GetCurrentSeekPercent().ToString();
         t.text += cVideo.MPC.err;
+
+        //////////////////////////////////////////////////////////////////////////
     }
 
     public void SetActiveScreenTrue()
@@ -160,7 +173,7 @@ public class VideoInfo
     [HideInInspector]
     public MediaPlayerCtrl MPC;
 
-    public void Ready()
+    public void Init()
     {
         MPC.m_strFileName = videoPath;
         MPC.m_TargetMaterial = new GameObject[1];
@@ -172,7 +185,10 @@ public class VideoInfo
 
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
+    }
 
+    public void Ready()
+    {
         MPC.Load(MPC.m_strFileName);
     }
 
