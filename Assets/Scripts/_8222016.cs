@@ -64,7 +64,7 @@ public class _8222016 : MonoBehaviour
                 break;
 
             case VideoInfo.VideoStates.READY:
-                if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY)
+                if(cVideo.MPC.GetCurrentSeekPercent() > 25)
                 {
                     cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
                 }
