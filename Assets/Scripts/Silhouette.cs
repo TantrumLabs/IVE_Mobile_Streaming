@@ -5,27 +5,47 @@ public class Silhouette : MonoBehaviour
 {
     // Variables ///////////////////////////////////////////////////////////////////////////////////////
     [SerializeField] private AnimationCurve pulseRate;
-
+    private Vector3 originalScale;
+    public bool pulse = false;
+    Renderer objRend;
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
-    [ContextMenu("Pulse")]
 	void Awake ()
     {
-        StartCoroutine(HighLightPulse(1));
+        objRend = gameObject.GetComponent<Renderer>();
+        originalScale = gameObject.transform.localScale;
 	}
-    // Function ////////////////////////////////////////////////////////////////////////////////////////
-    IEnumerator HighLightPulse(float time)      // Animation of object
+
+    public void RayOn()
     {
-        while (true)
+        objRend.enabled = true;
+        if (!pulse)     // If set to true, and was false -- start Coroutine
+        {
+            pulse = true;
+            StartCoroutine(HighLightPulse());
+        }
+    }
+
+    public void RayOff()
+    {
+        objRend.enabled = false;
+        StopAllCoroutines();
+        gameObject.transform.localScale = originalScale;
+        pulse = false;
+    }
+
+    // Function ////////////////////////////////////////////////////////////////////////////////////////
+    IEnumerator HighLightPulse()      // Animation of object
+    {
+        while (pulse)
         {
             float timer = 0;    // Interator
-            while (timer <= time)
+            while (timer <= 1 && pulse)
             {
-                float s = pulseRate.Evaluate(timer / time);
-                transform.localScale = new Vector3(s, s, s);
+                float s = pulseRate.Evaluate(timer / 1);
+                transform.localScale = new Vector3(originalScale.x * s, originalScale.y * s, originalScale.z);
                 timer += Time.deltaTime;
                 yield return null;
             }
-            yield return null;
         }
     }
 }
