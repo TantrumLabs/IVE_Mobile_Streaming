@@ -74,6 +74,7 @@ public class _8222016 : MonoBehaviour
 
             vInfo[i].fsm.m_currentState = VideoInfo.VideoStates.INIT;
             vInfo[i].Init();
+            vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
         }
     }
 
@@ -81,10 +82,10 @@ public class _8222016 : MonoBehaviour
     {
         switch(cVideo.fsm.m_currentState)
         {
-            case VideoInfo.VideoStates.INIT:
-                //cVideo.Init();
-                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
-                break;
+            //case VideoInfo.VideoStates.INIT:
+            //    //cVideo.Init();
+            //    cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
+            //    break;
 
             case VideoInfo.VideoStates.READY:
                 if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY)
@@ -92,7 +93,7 @@ public class _8222016 : MonoBehaviour
                     cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
                     if(cVideo.autoNext > 0 && cVideo.autoNext < vInfo.Count)
                     {
-                        PrepVideoAt(cVideo.autoNext);
+                        //PrepVideoAt(cVideo.autoNext);
                     }
                 }
                 break;
@@ -128,23 +129,13 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        if (false)
+        t.text = Time.time.ToString();
+        foreach (VideoInfo v in vInfo)
         {
-            switch (nVideo.fsm.m_currentState)
-            {
-                case VideoInfo.VideoStates.END:
-                    cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.OUT);
-                    break;
-
-                case VideoInfo.VideoStates.OUT:
-                    cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
-                    break;
-
-                default:
-                    break;
-            };
+            t.text += v.MPC.GetCurrentState().ToString();
         }
-        // DEBUGGING ////////////////////////////////////////////////////////////
+
+        /*/ DEBUGGING ////////////////////////////////////////////////////////////
 
         t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
@@ -152,7 +143,7 @@ public class _8222016 : MonoBehaviour
         t.text += cVideo.MPC.GetCurrentSeekPercent().ToString();
         t.text += cVideo.MPC.err;
 
-        //////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////*/
     }
 
     public void SetActiveScreenTrue()
@@ -174,25 +165,8 @@ public class _8222016 : MonoBehaviour
         cVideo = vInfo[index];
     }
 
-    public void PrepVideoAt(int index)
-    {
-        UnloadQuedVideo();
-
-        if (!vInfo.Contains(vInfo[index]))
-            return;
-
-        nVideo = vInfo[index];
-        nVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
-    }
-
-    public void UnloadQuedVideo()
-    {
-        nVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.END);
-    }
-
     public List<VideoInfo> vInfo = new List<VideoInfo>();
     private VideoInfo cVideo;
-    private VideoInfo nVideo;
 
 }
 
@@ -278,10 +252,10 @@ public class VideoInfo
 
     public void End()
     {
-        MPC.Stop();
+        //MPC.Stop();
         MPC.m_TargetMaterial[0] = null;
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
-        MPC.UnLoad();
+        //MPC.UnLoad();
     }
 }
