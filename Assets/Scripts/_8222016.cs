@@ -74,7 +74,10 @@ public class _8222016 : MonoBehaviour
 
             vInfo[i].fsm.m_currentState = VideoInfo.VideoStates.INIT;
             vInfo[i].Init();
+
             vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
+            vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
+            vInfo[i].MPC.Pause();
         }
     }
 
@@ -135,9 +138,9 @@ public class _8222016 : MonoBehaviour
             t.text += v.MPC.GetCurrentState().ToString();
         }
 
-        /*/ DEBUGGING ////////////////////////////////////////////////////////////
+        //*/ DEBUGGING ////////////////////////////////////////////////////////////
 
-        t.text = ((int)Time.time).ToString();
+        //t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
         t.text += cVideo.fsm.m_currentState.ToString();
         t.text += cVideo.MPC.GetCurrentSeekPercent().ToString();
