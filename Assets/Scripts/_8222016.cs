@@ -76,8 +76,8 @@ public class _8222016 : MonoBehaviour
             vInfo[i].Init();
 
             vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
-            vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
-            vInfo[i].MPC.Pause();
+            //vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
+            //vInfo[i].MPC.Pause();
         }
     }
 
@@ -132,15 +132,9 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        t.text = Time.time.ToString();
-        foreach (VideoInfo v in vInfo)
-        {
-            t.text += v.MPC.GetCurrentState().ToString();
-        }
-
         //*/ DEBUGGING ////////////////////////////////////////////////////////////
 
-        //t.text = ((int)Time.time).ToString();
+        t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
         t.text += cVideo.fsm.m_currentState.ToString();
         t.text += cVideo.MPC.GetCurrentSeekPercent().ToString();
@@ -231,6 +225,7 @@ public class VideoInfo
     {
         MPC.m_strFileName = videoPath;
         MPC.Load(MPC.m_strFileName);
+        MPC.Pause();
     }
 
     public void Play()
@@ -259,6 +254,7 @@ public class VideoInfo
         MPC.m_TargetMaterial[0] = null;
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
-        //MPC.UnLoad();
+
+        Ready();
     }
 }
