@@ -1,15 +1,25 @@
-﻿using UnityEngine;
+﻿///////////////////////////////////////////////////////////////////////////
+// Author:  Zac King            ///////////////////////////////////////////
+// Contact: ZacKingx@Gmail.com  ///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Usage:                                                                //
+// //////                                                                //
+// Notes:                                                                //
+///////////////////////////////////////////////////////////////////////////
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
 public class RadialLoad : MonoBehaviour
 {
     #region Variables
-    [SerializeField] private Image progressCircle;  // 
-    [SerializeField] private float loadTime = 3f;   // Seconds to complete load
+    [SerializeField] private Image progressCircle;  // Load image
+    [SerializeField] private float timeToPlay = 3f; // Seconds to complete load
+    [Range(0, 3)] [SerializeField] private float timeToLoad;// Time till load
     [SerializeField] private Gradient loadGradient; // Gradient over time for load
     public bool isLoading = false;                  // Bool for current state of loading 
-    public _8222016 vm;                   // VideoManager
+    private _8222016 vm = null;                     // VideoManager
     #endregion
 
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
@@ -21,11 +31,11 @@ public class RadialLoad : MonoBehaviour
         progressCircle.type = Image.Type.Filled;    // Amount visible dictacted by value
         progressCircle.fillAmount = 0;              // Zero it out
         progressCircle.fillOrigin = 2;              // Fill Origin = top
-        progressCircle.fillClockwise = false;       // 
+        progressCircle.fillClockwise = false;       // FIll Counter clockwise
     }
 
     // Functions ///////////////////////////////////////////////////////////////////////////////////////
-    public void StopLoad()  //
+    public void StopLoad()  // Public function allowing asessing obj halt the Load Coroutine 
     {
         isLoading = false;
     }
@@ -38,13 +48,20 @@ public class RadialLoad : MonoBehaviour
 
     IEnumerator LoadCircle(int index)    // Load coroutine
     {
-        //Debug.Log("Load started");
+        bool startLoad = false;
         float timer = 0;
-        while (timer <= loadTime && isLoading)
+        while (timer <= timeToPlay && isLoading)
         {
-            progressCircle.fillAmount = timer / loadTime;
-            progressCircle.color = loadGradient.Evaluate(timer / loadTime);
+            progressCircle.fillAmount = timer / timeToPlay;
+            progressCircle.color = loadGradient.Evaluate(timer / timeToPlay);
             timer += Time.deltaTime;
+
+            if (timer >= timeToLoad && !startLoad)
+            {
+                startLoad = true;
+                // call load at index
+            }
+
             yield return null;
         }
 
@@ -52,9 +69,14 @@ public class RadialLoad : MonoBehaviour
         {
             if (index != -1)
                 vm.StopCurrentAndPlayAt(index);
-            else
+
+            else    // index -1 denotes selection intended to be used to open webpage
                 Application.OpenURL("http://www.tantrumlab.com/");
-            //Debug.Log("Load done");
+        }
+
+        else
+        {
+            // Unload at index
         }
 
         progressCircle.fillAmount = 0;   // Reset
