@@ -32,7 +32,6 @@ public class _8222016 : MonoBehaviour
 
     void Awake()
     {
-        t.text = vInfo.Count.ToString();
         StartUp();
         cVideo = vInfo[0];
     }
@@ -41,7 +40,7 @@ public class _8222016 : MonoBehaviour
     {
         for(int i = 0; i < vInfo.Count; ++i)
         {
-            vInfo[i].MPC = gameObject.GetComponent<MediaPlayerCtrl>();
+            vInfo[i].MPC = gameObject.AddComponent<MediaPlayerCtrl>();
 
             vInfo[i].fsm = new _FSM._FSM<VideoInfo.VideoStates>();
 
@@ -129,7 +128,7 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        if (true)
+        if (false)
         {
             switch (nVideo.fsm.m_currentState)
             {
