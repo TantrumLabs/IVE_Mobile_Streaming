@@ -1,42 +1,53 @@
-﻿using UnityEngine;
+﻿///////////////////////////////////////////////////////////////////////////
+// Author:  Zac King            ///////////////////////////////////////////
+// Contact: ZacKingx@Gmail.com  ///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Usage:                                                                //
+// //////                                                                //
+// Notes:                                                                //
+///////////////////////////////////////////////////////////////////////////
+
+using UnityEngine;
 using System.Collections;
 
 public class Silhouette : MonoBehaviour
 {
-    // Variables ///////////////////////////////////////////////////////////////////////////////////////
+    #region Variables
     [SerializeField] private AnimationCurve pulseRate;
     private Vector3 originalScale;
     public bool pulse = false;
-    Renderer objRend;
+    private Renderer objRend;
+    #endregion
+
+    #region Function
     // MonoBehaviour ///////////////////////////////////////////////////////////////////////////////////
-	void Awake ()
+    void Awake ()
     {
-        objRend = gameObject.GetComponent<Renderer>();
-        originalScale = gameObject.transform.localScale;
+        objRend = gameObject.GetComponent<Renderer>();      // Store object's renderer 
+        originalScale = gameObject.transform.localScale;    // Store Original scale
 	}
 
-    public void RayOn()
+    // Function ////////////////////////////////////////////////////////////////////////////////////////
+    public void RayOn()     // Start selected animations 
     {
-        objRend.enabled = true;
-        if (!pulse)     // If set to true, and was false -- start Coroutine
+        objRend.enabled = true;     // Outline is visible
+        if (!pulse) // Ensure corutine is only started once
         {
-            pulse = true;
-            StartCoroutine(HighLightPulse());
+            pulse = true;                       // Set to true
+            StartCoroutine(HighLightPulse());   // Start coroutine for animation
         }
     }
 
-    public void RayOff()
+    public void RayOff()    // 
     {
-        objRend.enabled = false;
-        StopAllCoroutines();
+        objRend.enabled = false;    // Outline is not visible
         gameObject.transform.localScale = originalScale;
         pulse = false;
     }
-
-    // Function ////////////////////////////////////////////////////////////////////////////////////////
-    IEnumerator HighLightPulse()      // Animation of object
+    
+    IEnumerator HighLightPulse()    // Animation of object
     {
-        while (pulse)
+        while (pulse)   // bool Pulse
         {
             float timer = 0;    // Interator
             while (timer <= 1 && pulse)
@@ -48,4 +59,5 @@ public class Silhouette : MonoBehaviour
             }
         }
     }
+    #endregion
 }
