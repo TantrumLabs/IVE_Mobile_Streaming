@@ -1,4 +1,28 @@
-﻿using UnityEngine;
+﻿/*  Author: Eric Mouledoux
+ *      Contact : EricMouledoux@gmail.com
+ * 
+ *  Script Summary:
+ *      This script is a controller for the EasyMovieTexture
+ *      Using a FSM, the Media Player Controller (MPC) is more carefully controled
+ *      This better manages the MPC by only allowing it to be in 1 state at a time
+ *          The MPC's original state machiene allows for multipul states at any given time
+ *      Also meant to override the original onReady and onEnd like delegates to ensure they are only called once
+ *      
+ *  Usage:
+ *      To be used ith Unity3d (5.4.0f3 when first made)
+ *      Attach this script to any gameObject
+ *          DO NOT add any MPC to the gameObject aswell, this scripts will auto generate all that are necessary
+ *      Set the vales in the inspector
+ *          video name  - Mostly for debugging
+ *          video Path  - Can be a url for streaming, or a file path for standalone builds
+ *          loop        - True/False if the video should loop
+ *          auto next   - Index of the video to play at the end of this video. Set to -1 by default indicating there is no immeadiete next
+ *          
+ *  Notes:
+ *      
+ */
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -8,19 +32,17 @@ public class _8222016 : MonoBehaviour
 
     void Awake()
     {
-        t.text = vInfo.Count.ToString();
         StartUp();
         cVideo = vInfo[0];
-        cVideo.Init();
     }
 
     void StartUp()
     {
         for(int i = 0; i < vInfo.Count; ++i)
         {
-            vInfo[i].MPC = gameObject.GetComponent<MediaPlayerCtrl>();
+            vInfo[i].MPC = gameObject.AddComponent<MediaPlayerCtrl>();
 
-            vInfo[i].fsm = new _FSM<VideoInfo.VideoStates>();
+            vInfo[i].fsm = new _FSM._FSM<VideoInfo.VideoStates>();
 
             vInfo[i].fsm.AddState(VideoInfo.VideoStates.INIT);
             vInfo[i].fsm.AddState(VideoInfo.VideoStates.READY);
@@ -31,12 +53,12 @@ public class _8222016 : MonoBehaviour
             vInfo[i].fsm.AddState(VideoInfo.VideoStates.OUT);
 
             //VideoInfo.Handler toInit = vInfo[i].Init;
-            VideoInfo.Handler toReady =  vInfo[i].Ready;
-            VideoInfo.Handler toPlay = vInfo[i].Play;
-            toPlay += SetActiveScreenTrue;
-            VideoInfo.Handler toPause = vInfo[i].Pause;
-            VideoInfo.Handler toStopped = vInfo[i].Stop;
-            VideoInfo.Handler toEnd = vInfo[i].End;
+            _FSM.Handeler toReady   =  vInfo[i].Ready;
+            _FSM.Handeler toPlay    = vInfo[i].Play;
+                          toPlay   += SetActiveScreenTrue;
+            _FSM.Handeler toPause   = vInfo[i].Pause;
+            _FSM.Handeler toStopped = vInfo[i].Stop;
+            _FSM.Handeler toEnd     = vInfo[i].End;
             //toEnd += SetActiveScreenFalse;
 
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.INIT,     VideoInfo.VideoStates.READY,    toReady);
@@ -51,6 +73,11 @@ public class _8222016 : MonoBehaviour
             vInfo[i].fsm.AddTransition(VideoInfo.VideoStates.OUT,      VideoInfo.VideoStates.READY,    toReady);
 
             vInfo[i].fsm.m_currentState = VideoInfo.VideoStates.INIT;
+            vInfo[i].Init();
+
+            vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
+            //vInfo[i].fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
+            //vInfo[i].MPC.Pause();
         }
     }
 
@@ -58,15 +85,19 @@ public class _8222016 : MonoBehaviour
     {
         switch(cVideo.fsm.m_currentState)
         {
-            case VideoInfo.VideoStates.INIT:
-                //cVideo.Init();
-                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
-                break;
+            //case VideoInfo.VideoStates.INIT:
+            //    //cVideo.Init();
+            //    cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
+            //    break;
 
             case VideoInfo.VideoStates.READY:
                 if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY)
                 {
                     cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
+                    if(cVideo.autoNext > 0 && cVideo.autoNext < vInfo.Count)
+                    {
+                        //PrepVideoAt(cVideo.autoNext);
+                    }
                 }
                 break;
 
@@ -83,7 +114,6 @@ public class _8222016 : MonoBehaviour
                     }
                 }
                 break;
-
             case VideoInfo.VideoStates.PAUSED:
                 break;
 
@@ -102,7 +132,7 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        // DEBUGGING ////////////////////////////////////////////////////////////
+        //*/ DEBUGGING ////////////////////////////////////////////////////////////
 
         t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
@@ -110,7 +140,7 @@ public class _8222016 : MonoBehaviour
         t.text += cVideo.MPC.GetCurrentSeekPercent().ToString();
         t.text += cVideo.MPC.err;
 
-        //////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////*/
     }
 
     public void SetActiveScreenTrue()
@@ -124,6 +154,9 @@ public class _8222016 : MonoBehaviour
 
     public void StopCurrentAndPlayAt(int index)
     {
+        if (index < 0)
+            Application.OpenURL("http://www.tantrumlab.com");
+
         cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.STOPPED);
         cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.END);
         cVideo = vInfo[index];
@@ -131,6 +164,7 @@ public class _8222016 : MonoBehaviour
 
     public List<VideoInfo> vInfo = new List<VideoInfo>();
     private VideoInfo cVideo;
+
 }
 
 [System.Serializable]
@@ -164,9 +198,9 @@ public class VideoInfo
         END,
         OUT,
     }
-    public _FSM<VideoStates> fsm;
-    public delegate void Handler();
-
+    public _FSM._FSM<VideoStates> fsm;
+    //public delegate void Handler();
+    
     /// <summary>
     /// The MediaPlayerCtrl to control the video
     /// </summary>
@@ -182,7 +216,7 @@ public class VideoInfo
         MPC.m_ScaleValue = MediaPlayerCtrl.MEDIA_SCALE.SCALE_X_TO_Y;
         MPC.m_bAutoPlay = false;
         MPC.m_bInit = true;
-
+        
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
     }
@@ -191,6 +225,7 @@ public class VideoInfo
     {
         MPC.m_strFileName = videoPath;
         MPC.Load(MPC.m_strFileName);
+        MPC.Pause();
     }
 
     public void Play()
@@ -215,10 +250,11 @@ public class VideoInfo
 
     public void End()
     {
-        MPC.Stop();
+        //MPC.Stop();
         MPC.m_TargetMaterial[0] = null;
         if (SelectionScreens)
             SelectionScreens.SetActive(false);
-        MPC.UnLoad();
+
+        Ready();
     }
 }
