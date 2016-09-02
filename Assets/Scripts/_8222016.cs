@@ -93,7 +93,7 @@ public class _8222016 : MonoBehaviour
             case VideoInfo.VideoStates.READY:
                 if(cVideo.MPC.GetCurrentState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.READY)
                 {
-                    cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.PLAYING);
+                    TransistionTo(VideoInfo.VideoStates.PLAYING);
                     if(cVideo.autoNext > 0 && cVideo.autoNext < vInfo.Count)
                     {
                         //PrepVideoAt(cVideo.autoNext);
@@ -121,11 +121,11 @@ public class _8222016 : MonoBehaviour
                 break;
 
             case VideoInfo.VideoStates.END:
-                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.OUT);
+                TransistionTo(VideoInfo.VideoStates.OUT);
                 break;
 
             case VideoInfo.VideoStates.OUT:
-                cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.READY);
+                TransistionTo(VideoInfo.VideoStates.READY);
                 break;
 
             default:
@@ -142,6 +142,26 @@ public class _8222016 : MonoBehaviour
 
         /////////////////////////////////////////////////////////////////////////*/
     }
+
+    public void TransistionTo(VideoInfo.VideoStates nState)
+    {
+        cVideo.fsm.MakeTransitionTo(nState);
+    }
+
+    public void PlayPause()
+    {
+        switch (cVideo.fsm.m_currentState)
+        {
+            case VideoInfo.VideoStates.PLAYING:
+                TransistionTo(VideoInfo.VideoStates.PAUSED);
+                break;
+            case VideoInfo.VideoStates.PAUSED:
+                TransistionTo(VideoInfo.VideoStates.PLAYING);
+                break;
+        };
+    }
+
+
 
     public void SetActiveScreenTrue()
     {
@@ -237,6 +257,8 @@ public class VideoInfo
 
     public void Pause()
     {
+        if (SelectionScreens)
+            SelectionScreens.SetActive(false);
         MPC.Pause();
     }
 
