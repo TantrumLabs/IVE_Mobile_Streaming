@@ -16,7 +16,7 @@ public class RadialLoad : MonoBehaviour
     #region Variables
     [SerializeField] private Image progressCircle;  // Load image
     [SerializeField] private float timeToPlay = 3f; // Seconds to complete load
-    [Range(0, 3)] [SerializeField] private float timeToLoad;// Time till load
+    //[SerializeField] private float timeToLoad;// Time till load
     [SerializeField] private Gradient loadGradient; // Gradient over time for load
     public bool isLoading = false;                  // Bool for current state of loading 
     private _8222016 vm = null;                     // VideoManager
@@ -56,7 +56,7 @@ public class RadialLoad : MonoBehaviour
             progressCircle.color = loadGradient.Evaluate(timer / timeToPlay);
             timer += Time.deltaTime;
 
-            if (timer >= timeToLoad && !startLoad)
+            if (timer >= (timeToPlay / 2) && !startLoad)
             {
                 startLoad = true;
                 // call load at index
