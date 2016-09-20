@@ -8,14 +8,24 @@ public class HelmetController : MonoBehaviour
 	
 	void Update ()
     {
-	    if(Input.GetKeyDown(KeyCode.F7))
+	    if(Input.GetKeyUp(KeyCode.F7))
         {
             if(IntroScreen.activeSelf)
             {
                 IntroScreen.SetActive(false);
+                VideoPlayer.enabled = true;
             }
 
             VideoPlayer.PlayPause();
+        }
+        if(VideoPlayer.GetCurrentVideoMPCState() == MediaPlayerCtrl.MEDIAPLAYER_STATE.END)
+        {
+            IntroScreen.SetActive(true);
+        }
+
+        if(Input.GetKeyUp(KeyCode.Escape))
+        {
+            Application.Quit();
         }
 	}
 }
