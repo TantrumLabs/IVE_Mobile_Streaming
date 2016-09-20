@@ -182,6 +182,11 @@ public class _8222016 : MonoBehaviour
         cVideo = vInfo[index];
     }
 
+    public MediaPlayerCtrl.MEDIAPLAYER_STATE GetCurrentVideoMPCState()
+    {
+        return cVideo.MPC.GetCurrentState();
+    }
+
     public List<VideoInfo> vInfo = new List<VideoInfo>();
     private VideoInfo cVideo;
 
