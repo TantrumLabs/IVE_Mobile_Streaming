@@ -132,7 +132,7 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        //*/ DEBUGGING ////////////////////////////////////////////////////////////
+        /*/ DEBUGGING ////////////////////////////////////////////////////////////
 
         t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
