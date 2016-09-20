@@ -132,7 +132,7 @@ public class _8222016 : MonoBehaviour
                 break;
         };
 
-        //*/ DEBUGGING ////////////////////////////////////////////////////////////
+        /*/ DEBUGGING ////////////////////////////////////////////////////////////
 
         t.text = ((int)Time.time).ToString();
         t.text += cVideo.Name;
@@ -180,6 +180,11 @@ public class _8222016 : MonoBehaviour
         cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.STOPPED);
         cVideo.fsm.MakeTransitionTo(VideoInfo.VideoStates.END);
         cVideo = vInfo[index];
+    }
+
+    public MediaPlayerCtrl.MEDIAPLAYER_STATE GetCurrentVideoMPCState()
+    {
+        return cVideo.MPC.GetCurrentState();
     }
 
     public List<VideoInfo> vInfo = new List<VideoInfo>();
